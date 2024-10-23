@@ -138,7 +138,7 @@ fn summarize_processes(
     process_total_usage
 }
 
-pub async fn analyze_process_status() -> (HashMap<String, serde_json::Value>, HashSet<String>) {
+pub async fn analyze_process_status() {
     let period_of_record = set_record_period();
     let period_of_upload = set_return_period();
     let total_times = period_of_upload / period_of_record;
@@ -147,13 +147,13 @@ pub async fn analyze_process_status() -> (HashMap<String, serde_json::Value>, Ha
     let mut pre_record_set: HashSet<String> = HashSet::new();
 
     let mut sys = System::new_all();
+    loop {
+        for _ in 0..total_times {
+            process_analyze(&mut sys, &mut process_analyzes, &mut pre_record_set);
+            sleep(Duration::from_secs(period_of_record as u64)).await;
+        }
 
-    for _ in 0..total_times {
-        process_analyze(&mut sys, &mut process_analyzes, &mut pre_record_set);
-        sleep(Duration::from_secs(period_of_record as u64)).await;
+        let process_total_usage = summarize_processes(&process_analyzes);
+        println!("{:#?}", process_total_usage);
     }
-
-    let process_total_usage = summarize_processes(&process_analyzes);
-
-    (process_total_usage, pre_record_set)
 }
