@@ -3,7 +3,7 @@ use chrono::{FixedOffset, Utc};
 use serde_json::json;
 use std::collections::{HashMap, HashSet};
 use std::io;
-use sysinfo::System;
+use sysinfo::{ProcessesToUpdate, System};
 use tokio::time::{sleep, Duration};
 
 fn set_record_period() -> i32 {
@@ -89,7 +89,7 @@ fn process_analyze(
     process_analyzes: &mut HashMap<String, ProcessInfo>,
     pre_record_set: &mut HashSet<String>,
 ) {
-    sys.refresh_all();
+    sys.refresh_processes(ProcessesToUpdate::All, true);
 
     let mut new_record_set = HashSet::new();
 
